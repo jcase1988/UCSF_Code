@@ -16,6 +16,10 @@ end
 if ~exist(fig_path)
     mkdir(fig_path)
 end
+if ~exist(ana_path)
+    mkdir(ana_path)
+end
+
 
 good_elecs = setdiff(ecogCAR.banks(1):ecogCAR.banks(end),ecogCAR.badChannels);
 srate = ecogCAR.sampFreq;
@@ -23,7 +27,7 @@ srate = ecogCAR.sampFreq;
 
 onsets = [ecogCAR.sample1times(:,1) ecogCAR.sample2times(:,1) ecogCAR.feedbacktimes(:,1)]*srate;
 offsets = [ecogCAR.sample1times(:,2) ecogCAR.sample2times(:,2) ecogCAR.feedbacktimes(:,2)]*srate;
-ecogCAR.stimID = [ecogCAR.offerval ecogCAR.choice];
+ecogCAR.stimID = [ecogCAR.offerval ecogCAR.feedbackval'];
 
 bl = 0.5; %baseline
 ps = 1;   %post-stim
@@ -37,7 +41,6 @@ jm = round(plot_jump./1000*srate);
 for elec = good_elecs
     clear erp band
     band = ecogCAR.data(elec,:);
-    
     
     if power
         band = abs(my_hilbert(band, srate, 70, 150)).^2;
@@ -84,6 +87,10 @@ for elec = good_elecs
     
     mean_erp = mean(erp,1);
     mean_erp_z = mean(erp_z,1);
+    
+    ERP_A_se = std(ERP_A,1)/sqrt(size(ERP_A,1));
+    ERP_B_se = std(ERP_B,1)/sqrt(size(ERP_B,1));
+    ERP_C_se = std(ERP_C,1)/sqrt(size(ERP_C,1));    
     ERP_A = mean(ERP_A,1);
     ERP_B = mean(ERP_B,1);
     ERP_C = mean(ERP_C,1);
@@ -113,21 +120,20 @@ for elec = good_elecs
     close
     
     % Plot Z-scored signal for each condition
-    fgrid = figure('visible','off');
-    plot(tm_st:tm_en,band_pass(ERP_A,srate,0,7),'LineWidth', 2)
+    h = boundedline(tm_st:tm_en,band_pass(ERP_A,srate,0,7),band_pass(ERP_A_se,srate,0,7),'alpha','transparency',0.15,'-b'); set(h,'LineWidth',2);
     hold on;
-    plot(tm_st:tm_en,band_pass(ERP_B,srate,0,7),'-r','LineWidth', 2)
+    h = boundedline(tm_st:tm_en,band_pass(ERP_B,srate,0,7),band_pass(ERP_B_se,srate,0,7),'alpha','transparency',0.15,'-r'); set(h,'LineWidth',2);
     hold on;
-    plot(tm_st:tm_en,band_pass(ERP_C,srate,0,7),'-g','LineWidth', 2)
+    h = boundedline(tm_st:tm_en,band_pass(ERP_C,srate,0,7),band_pass(ERP_C_se,srate,0,7),'alpha','transparency',0.15,'-g'); set(h,'LineWidth',2);
     set(gca, 'XTick', [tm_st:jm:tm_en], 'XTickLabel', plot_str, 'XTickMode', 'manual', 'Layer', 'top');
     legend('aagaa','iyfiy','uwshuw')
     xlabel('ms'); 
     ylabel('Z-Score'); 
     xlim([tm_st tm_en])    
-    set(fgrid, 'PaperPositionMode', 'auto')
+%    set(h, 'PaperPositionMode', 'auto')
     
     saveas(gcf, [fig_path 'Z-score_conds_e' num2str(elec) '.jpg'], 'jpg')
     close;
 end
 
-save([ana_path 'HG_cond_power_z-score.mat'],'HG_cond_power');
+save([ana_path 'HG_cond_power_z-scored.mat'],'HG_cond_power');

@@ -1,10 +1,10 @@
-function [ecogSeg] = segment_trial(ecogCAR,bl,ps)
+function [ecogSeg] = segment_trial(ecogCAR,bl,ps,allstimtimes)
 
 
 %bl = 0.5; %baseline in seconds
 %ps = 3; % trial offset in seconds
 srate = ecogCAR.sampFreq;
-events = ecogCAR.allstimtimes;
+events = allstimtimes;
 
 nchan = size(ecogCAR.data,1);
 nsamp = round((bl + ps) * srate)+1;
@@ -12,7 +12,7 @@ ntrial = size(events,1);
 
 ecogSeg = zeros(nchan,nsamp,ntrial);
 
-for iTrial = 1:size(ecogCAR.allstimtimes,1)
+for iTrial = 1:size(allstimtimes,1)
     onset = events(iTrial,1);
     offset = events(iTrial,2);
     

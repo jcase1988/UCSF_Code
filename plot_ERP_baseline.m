@@ -1,4 +1,4 @@
-function plot_ERP_baseline(subj,block,power)
+function plot_power_auditory_response(subj,block,power)
 
 path = ['/Users/johncase/Documents/UCSF Data/' subj '/' subj block];
 CAR_path = [path '/data/' subj '_' block '_CAR.mat'];
@@ -16,6 +16,10 @@ end
 if ~exist(fig_path)
     mkdir(fig_path)
 end
+if ~exist(ana_path)
+    mkdir(ana_path)
+end
+
 
 good_elecs = setdiff(ecogCAR.banks(1):ecogCAR.banks(end),ecogCAR.badChannels);
 srate = ecogCAR.sampFreq;
@@ -74,8 +78,16 @@ for elec = good_elecs
     HG_cond_power{elec}.Bi = B_ind;
     HG_cond_power{elec}.Ci = C_ind;
     
+    ERP_A(A_ind==1,:) = []; %remove first trial
+    ERP_B(B_ind==1,:) = []; %remove first trial
+    ERP_C(C_ind==1,:) = []; %remove first trial
+    
     mean_erp = mean(erp,1);
     mean_erp_z = mean(erp_z,1);
+    
+    ERP_A_se = std(ERP_A,1)/sqrt(size(ERP_A,1));
+    ERP_B_se = std(ERP_B,1)/sqrt(size(ERP_B,1));
+    ERP_C_se = std(ERP_C,1)/sqrt(size(ERP_C,1));
     ERP_A = mean(ERP_A,1);
     ERP_B = mean(ERP_B,1);
     ERP_C = mean(ERP_C,1);
@@ -105,18 +117,31 @@ for elec = good_elecs
     close
     
     % Plot Z-scored signal for each condition
-    fgrid = figure('visible','off');
-    plot(tm_st:tm_en,band_pass(ERP_A,srate,0,7),'LineWidth', 2)
+    %fgrid = figure('visible','off');
+    h = boundedline(tm_st:tm_en,band_pass(ERP_A,srate,0,7),band_pass(ERP_A_se,srate,0,7),'alpha','transparency',0.15,'-b'); set(h,'LineWidth',2);
     hold on;
-    plot(tm_st:tm_en,band_pass(ERP_B,srate,0,7),'-r','LineWidth', 2)
+    h = boundedline(tm_st:tm_en,band_pass(ERP_B,srate,0,7),band_pass(ERP_B_se,srate,0,7),'alpha','transparency',0.15,'-r'); set(h,'LineWidth',2);
     hold on;
-    plot(tm_st:tm_en,band_pass(ERP_C,srate,0,7),'-g','LineWidth', 2)
-    set(gca, 'XTick', [tm_st:jm:tm_en], 'XTickLabel', plot_str, 'XTickMode', 'manual', 'Layer', 'top');
+    h = boundedline(tm_st:tm_en,band_pass(ERP_C,srate,0,7),band_pass(ERP_C_se,srate,0,7),'alpha','transparency',0.15,'-g'); set(h,'LineWidth',2);
+    set(gca, 'XTick', [tm_st:jm:tm_en], 'XTickLabel', plot_str, 'XTickMode', 'manual', 'Layer', 'top');    
     legend('aagaa','iyfiy','uwshuw')
     xlabel('ms'); 
     ylabel('Z-Score'); 
-    xlim([tm_st tm_en])    
-    set(fgrid, 'PaperPositionMode', 'auto')
+    xlim([tm_st tm_en])  
+%    set(fgrid, 'PaperPositionMode', 'auto')
+    
+%     fgrid = figure('visible','off');
+%     plot(tm_st:tm_en,band_pass(ERP_A,srate,0,7),'LineWidth', 2)
+%     hold on;
+%     plot(tm_st:tm_en,band_pass(ERP_B,srate,0,7),'-r','LineWidth', 2)
+%     hold on;
+%     plot(tm_st:tm_en,band_pass(ERP_C,srate,0,7),'-g','LineWidth', 2)
+%     set(gca, 'XTick', [tm_st:jm:tm_en], 'XTickLabel', plot_str, 'XTickMode', 'manual', 'Layer', 'top');
+%     legend('aagaa','iyfiy','uwshuw')
+%     xlabel('ms'); 
+%     ylabel('Z-Score'); 
+%     xlim([tm_st tm_en])    
+%     set(fgrid, 'PaperPositionMode', 'auto')
     
     saveas(gcf, [fig_path 'Z-score_conds_e' num2str(elec) '.jpg'], 'jpg')
     close;

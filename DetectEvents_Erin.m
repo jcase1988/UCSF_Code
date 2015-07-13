@@ -1,5 +1,5 @@
 
-function [eventtimes,eventnames,aga,ushu,ifi,clicks]=DetectEvents_Erin(dtpath,wpath,anin_to_use,names,tasktype)
+function [eventtimes,eventnames,aga,ushu,ifi,clicks]=DetectEvents_Erin(dtpath,wpath,anin_to_use,names,tasktype,corr_thresh)
 %function [eventtimes,eventnames,trialstims,faces,phrases,clicks]=DetectEvents_Erin(dtpath,wpath,anin_to_use,names,tasktype);
 %function [eventtimes,eventnames]=DetectEvents_Erin(dtpath,wpath,anin_to_use,names)
 
@@ -12,7 +12,7 @@ function [eventtimes,eventnames,aga,ushu,ifi,clicks]=DetectEvents_Erin(dtpath,wp
 %names = cell array of names of sample wav files
 
 new_fs = 20000;
-corr_thresh=0.3;
+%corr_thresh=0.3;
 evind = 1;
 all_conf=[];
 eventnames=cell(1,1);

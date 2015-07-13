@@ -1,8 +1,9 @@
 clear
 
-subj = 'EC70';
-block = 'B33';
+subj = 'EC82';
+block = 'B47';
 
+get_subj_globals(subj,block);
 path = ['/Users/johncase/Documents/UCSF Data/' subj '/' subj block];
 raw_path = [path '/data/' subj '_' block '.mat'];
 CAR_path = [path '/data/' subj '_' block '_CAR.mat'];
@@ -12,10 +13,10 @@ load(CAR_path)
 fig_path = [path '/figures/'];
 
 
-banks = ecogCAR.banks;
+%banks = ecogCAR.banks;
     
 %Plot spectrograms of raw and CARed signals
-if ~exist(fig_path)
+if ~exist([fig_path 'raw_spec/'])
     mkdir(fig_path)
     mkdir([fig_path 'raw_spec/'])
     mkdir([fig_path 'CARed_spec/'])
@@ -24,7 +25,7 @@ if ~exist(fig_path)
     
 end
 
-seg = segment_trial(ecogCAR,0.5,2);
+seg = segment_trial(ecogCAR,0.5,2,allstimtimes);
 erps = squeeze(mean(seg,3));
 good_elecs = setdiff(banks(1):banks(end),ecogDS.badChannels);
 clear per_raw per_CARed
